@@ -16,22 +16,22 @@ public class PermissionController {
     private PermissionService permissionService;
 
     @GetMapping("")
-    public List<Permission> findAll(){
+    public List<Permission> findAll() {
         return permissionService.findAll();
     }
 
     @PostMapping("")
-    public Permission create(@RequestBody PermissionDto permissionDto){
-        return permissionService.create(permissionDto);
+    public void create(@RequestBody PermissionDto permissionDto) {
+        permissionService.create(permissionDto);
     }
 
-    @PutMapping("/{id}")
-    public Permission update(@PathVariable long id, @RequestBody PermissionDto permissionDto){
-        return permissionService.update(id, permissionDto);
+    @PutMapping("")
+    public void update(@RequestBody PermissionDto permissionDto) {
+        permissionService.update(permissionDto);
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id){
+    public void delete(@PathVariable long id) {
         permissionService.delete(id);
     }
 }

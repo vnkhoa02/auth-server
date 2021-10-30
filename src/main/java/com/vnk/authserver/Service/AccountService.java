@@ -1,4 +1,6 @@
 package com.vnk.authserver.Service;
+import com.vnk.authserver.Auth.AuthenticationRequest;
+import com.vnk.authserver.Auth.AuthenticationResponse;
 import com.vnk.authserver.Dto.AccountDto;
 import com.vnk.authserver.Entity.Account;
 import com.vnk.authserver.Repository.AccountRepository;
@@ -30,38 +32,37 @@ public class AccountService {
     @Transactional
     public ResponseEntity<?> create(AccountDto accountDto){
         if(accountDto.getPassword() == null || accountDto.getUsername() == null){
-            System.out.println("info missing !");
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         if(accountRepo.getByUsername(accountDto.getUsername()) != null){
-            System.out.println("account exists!");
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }else {
             Account account = new Account();
             account.setUsername(accountDto.getUsername());
             account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
-            account.setRole(rolesRepo.getByName("User"));
+//            account.setRole(rolesRepo.getByName("User").get());
             account.setStatus(1);
             accountRepo.save(account);
             return new ResponseEntity(HttpStatus.OK);
         }
     }
 
-    public boolean login(String username, String password){
-        Account account = getByUsername(username);
-        if(account != null){ ;
-            return passwordEncoder.matches(password, account.getPassword());
+    public ResponseEntity<?> login(AuthenticationRequest request) {
+        Account account = accountRepo.getByUsername(request.getUsername());
+        if (account != null && passwordEncoder.matches(request.getPassword(), account.getPassword())) {
+            final String accessToken = jwtUtil.generateCustomToken(account);
+            return ResponseEntity.ok(new AuthenticationResponse(accessToken).getAccessToken());
         }
-        return false;
+        return new ResponseEntity(HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
     public void banAccount(long id) throws NotFoundException {
-        if(accountRepo.existsById(id)){
+        if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(0);
             accountRepo.save(account);
-        }else {
+        } else {
             throw new NotFoundException("account not exists!");
         }
     }
@@ -77,9 +78,7 @@ public class AccountService {
         }
     }
 
-    @Query(value = "select * from accounts a where a.username = ?", nativeQuery = true)
     public Account getByUsername(String username) {
         return accountRepo.getByUsername(username);
     }
-
 }

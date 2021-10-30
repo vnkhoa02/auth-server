@@ -9,10 +9,13 @@ import com.vnk.authserver.Repository.AccountRepository;
 import com.vnk.authserver.Repository.PermissionRepository;
 import com.vnk.authserver.Repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RolesService {
@@ -27,17 +30,15 @@ public class RolesService {
     AccountRepository accountRepo;
 
     @Transactional
-    public Roles create(RolesDto rolesDto){
-        Roles roles = new Roles();
-        roles.setName(rolesDto.getName());
-        if(accountRepo.existsById(rolesDto.getAccount_id())){
-            roles.getAccountList().add(accountRepo.getById(rolesDto.getAccount_id()));
+    public ResponseEntity<?> create(RolesDto rolesDto) {
+        Optional<Roles> checkExists = repo.getByName(rolesDto.getName());
+        if (!checkExists.isPresent()) {
+            Roles roles = new Roles();
+            roles.setName(rolesDto.getName());
+            roles.setStatus(1);
+            repo.save(roles);
         }
-        if (permissionRepo.existsById(rolesDto.getPermission_id())){
-            roles.getPermissionList().add(permissionRepo.getById(rolesDto.getPermission_id()));
-        }
-        roles.setStatus(1);
-        return repo.save(roles);
+        return new ResponseEntity(String.format("Role %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
     }
 
     public List<Roles> findAll() {
@@ -45,43 +46,45 @@ public class RolesService {
     }
 
     @Transactional
-    public Roles update(long id, RolesDto rolesDto){
-        Roles roles = repo.getById(id);
-        if(rolesDto.getName() != null){
-            roles.setName(rolesDto.getName());
+    public void update(RolesDto rolesDto) {
+        Optional<Roles> roles = repo.getByName(rolesDto.getName());
+        if (roles.isPresent()) {
+            roles.get().setName(rolesDto.getName());
+            repo.save(roles.get());
         }
-        return repo.save(roles);
     }
 
     @Transactional
-    public void delete(long id){
-        Roles roles = repo.getById(id);
-        roles.setStatus(0);
-        repo.save(roles);
+    public void delete(Long id) {
+        Optional<Roles> roles = repo.getRolesById(id);
+        if (roles.isPresent()) {
+            roles.get().setStatus(0);
+            repo.save(roles.get());
+        }
     }
 
     @Transactional
-    public void addPermission(long roleId, long permissionId){
-        Roles roles = repo.getById(roleId);
+    public void addPermission(Long roleId, Long permissionId) {
+        Optional<Roles> roles = repo.getRolesById(roleId);
         Permission permission = permissionRepo.getById(permissionId);
-        roles.getPermissionList().add(permission);
-        repo.save(roles);
+        roles.get().getPermissionList().add(permission);
+        repo.save(roles.get());
     }
 
     @Transactional
-    public void removePermission(long roleId, long permissionId){
-        Roles roles = repo.getById(roleId);
+    public void removePermission(Long roleId, Long permissionId) {
+        Optional<Roles> roles = repo.getRolesById(roleId);
         Permission permission = permissionRepo.getById(permissionId);
-        roles.removePermission(permission);
-        repo.save(roles);
+        roles.get().removePermission(permission);
+        repo.save(roles.get());
     }
 
     public Roles getById(Long aLong) {
-        return repo.getById(aLong);
+        return repo.getRolesById(aLong).get();
     }
 
     @Transactional
-    public void addRole(long id, long roleId){
+    public void addRole(Long id, Long roleId) {
         Account account = accountRepo.getById(id);
         Roles roles = getById(roleId);
         account.setRole(roles);

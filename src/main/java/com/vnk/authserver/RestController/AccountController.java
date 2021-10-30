@@ -9,7 +9,6 @@ import com.vnk.authserver.Service.RolesService;
 import com.vnk.authserver.Util.JwtUtil;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,26 +25,14 @@ public class AccountController {
     @Autowired
     private RolesService rolesService;
 
-    @GetMapping("/test")
-    public String hello(){
-        return "hi";
-    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AccountDto accountDto){
         return accountService.create(accountDto);
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-
-        if(accountService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword())){
-            final Account account = accountService.getByUsername(authenticationRequest.getUsername());
-
-            final String accessToken = jwtUtil.generateCustomToken(account);
-
-            return ResponseEntity.ok(new AuthenticationResponse(accessToken).getAccessToken());
-        }
-        return new ResponseEntity(HttpStatus.FORBIDDEN);
+        return accountService.login(authenticationRequest);
     }
 
 
@@ -59,10 +46,9 @@ public class AccountController {
         accountService.activeAccount(id);
     }
 
-    @PutMapping("/{id}/{roleId}")
-    public void addRole(@PathVariable long id, @PathVariable long roleId){
+    @PutMapping("/addRoles")
+    public void addRole(@RequestParam long id, @RequestParam long roleId){
         rolesService.addRole(id, roleId);
     }
-
 
 }

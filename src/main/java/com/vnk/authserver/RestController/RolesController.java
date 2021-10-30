@@ -4,6 +4,7 @@ import com.vnk.authserver.Dto.RolesDto;
 import com.vnk.authserver.Entity.Roles;
 import com.vnk.authserver.Service.RolesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class RolesController {
     }
 
     @PostMapping("")
-    public Roles create(@RequestBody RolesDto rolesDto) {
-        return rolesService.create(rolesDto);
+    public ResponseEntity<?> create(@RequestBody RolesDto rolesDto) {
+         return rolesService.create(rolesDto);
     }
 
     @PutMapping("/{roleId}/{permissionId}")
@@ -30,9 +31,9 @@ public class RolesController {
         rolesService.addPermission(roleId, permissionId);
     }
 
-    @PutMapping("/{id}")
-    public Roles update(@PathVariable long id, @RequestBody RolesDto rolesDto) {
-        return rolesService.update(id, rolesDto);
+    @PutMapping("")
+    public void update(@RequestBody RolesDto rolesDto) {
+         rolesService.update(rolesDto);
     }
 
     @DeleteMapping("/{id}")

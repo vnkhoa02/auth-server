@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PermissionService {
@@ -20,26 +21,31 @@ public class PermissionService {
     }
 
     @Transactional
-    public Permission create(PermissionDto permissionDto) {
-        Permission permission = new Permission();
-        permission.setName(permissionDto.getName());
-        permission.setStatus(0);
-        return repo.save(permission);
+    public void create(PermissionDto permissionDto) {
+        if (!repo.getPermissionByName(permissionDto.getName()).isPresent()) {
+            Permission permission = new Permission();
+            permission.setName(permissionDto.getName());
+            permission.setStatus(0);
+            repo.save(permission);
+        }
     }
 
     @Transactional
-    public Permission update(long id, PermissionDto permissionDto) {
-        Permission permission = repo.getById(id);
-        if (permissionDto.getName() != null) {
-            permission.setName(permissionDto.getName());
+    public void update(PermissionDto permissionDto) {
+        Optional<Permission> permission = repo.getPermissionByName(permissionDto.getName());
+        if (permission.isPresent()) {
+            permission.get().setName(permissionDto.getName());
+            repo.save(permission.get());
         }
-        return repo.save(permission);
     }
 
     @Transactional
     public void delete(long id) {
-        Permission permission = repo.getById(id);
-        permission.setStatus(0);
+        Optional<Permission> permission = repo.getPermissionById(id);
+        if (permission.isPresent()) {
+            permission.get().setStatus(0);
+            repo.save(permission.get());
+        }
     }
 
 
