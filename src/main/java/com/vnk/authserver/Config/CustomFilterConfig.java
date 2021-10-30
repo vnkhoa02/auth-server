@@ -1,20 +1,19 @@
 package com.vnk.authserver.Config;
 
-import com.vnk.authserver.Filter.RolesPermissionFilter;
+import com.vnk.authserver.Filter.CustomFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class CustomFilterConfig {
+public class CustomFilterConfig{
 
     @Bean
-    public FilterRegistrationBean<RolesPermissionFilter> rolesFilterRegistrationBean(){
-        FilterRegistrationBean<RolesPermissionFilter> registrationBean = new FilterRegistrationBean<>();
+    public FilterRegistrationBean<CustomFilter> registrationBean(){
+        FilterRegistrationBean<CustomFilter> registrationBean = new FilterRegistrationBean<>();
 
-        registrationBean.setFilter(new RolesPermissionFilter());
+        registrationBean.setFilter(new CustomFilter());
         registrationBean.addUrlPatterns("/permission/**", "/roles/**");
         return registrationBean;
     }
-
 }

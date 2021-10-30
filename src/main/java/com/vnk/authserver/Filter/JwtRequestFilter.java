@@ -4,6 +4,7 @@ import com.vnk.authserver.Entity.Account;
 import com.vnk.authserver.Service.AccountService;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
