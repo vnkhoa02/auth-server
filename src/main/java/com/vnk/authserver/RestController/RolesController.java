@@ -26,8 +26,8 @@ public class RolesController {
          return rolesService.create(rolesDto);
     }
 
-    @PutMapping("/{roleId}/{permissionId}")
-    public void addPermission(@PathVariable long roleId, @PathVariable long permissionId) {
+    @PutMapping("/add-permission")
+    public void addPermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.addPermission(roleId, permissionId);
     }
 
@@ -36,13 +36,13 @@ public class RolesController {
          rolesService.update(rolesDto);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
-        rolesService.delete(id);
+    @DeleteMapping("")
+    public void delete(@RequestBody RolesDto rolesDto) {
+        rolesService.delete(rolesDto);
     }
 
-    @DeleteMapping("/{roleId}/{permissionId}")
-    public void removePermission(@PathVariable long roleId, @PathVariable long permissionId) {
+    @DeleteMapping("/remove-permission")
+    public void removePermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.removePermission(roleId, permissionId);
     }
 }

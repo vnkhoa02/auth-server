@@ -4,6 +4,7 @@ import com.vnk.authserver.Dto.PermissionDto;
 import com.vnk.authserver.Entity.Permission;
 import com.vnk.authserver.Service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,8 +22,8 @@ public class PermissionController {
     }
 
     @PostMapping("")
-    public void create(@RequestBody PermissionDto permissionDto) {
-        permissionService.create(permissionDto);
+    public ResponseEntity<?> create(@RequestBody PermissionDto permissionDto) {
+        return permissionService.create(permissionDto);
     }
 
     @PutMapping("")
@@ -30,8 +31,8 @@ public class PermissionController {
         permissionService.update(permissionDto);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
-        permissionService.delete(id);
+    @DeleteMapping("")
+    public void delete(@RequestBody PermissionDto permissionDto) {
+        permissionService.delete(permissionDto);
     }
 }

@@ -37,8 +37,10 @@ public class RolesService {
             roles.setName(rolesDto.getName());
             roles.setStatus(1);
             repo.save(roles);
+        } else {
+            return new ResponseEntity(String.format("Role %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(String.format("Role %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
+        return null;
     }
 
     public List<Roles> findAll() {
@@ -47,7 +49,7 @@ public class RolesService {
 
     @Transactional
     public void update(RolesDto rolesDto) {
-        Optional<Roles> roles = repo.getByName(rolesDto.getName());
+        Optional<Roles> roles = repo.getRolesById(rolesDto.getId());
         if (roles.isPresent()) {
             roles.get().setName(rolesDto.getName());
             repo.save(roles.get());
@@ -55,8 +57,8 @@ public class RolesService {
     }
 
     @Transactional
-    public void delete(Long id) {
-        Optional<Roles> roles = repo.getRolesById(id);
+    public void delete(RolesDto rolesDto) {
+        Optional<Roles> roles = repo.getRolesById(rolesDto.getId());
         if (roles.isPresent()) {
             roles.get().setStatus(0);
             repo.save(roles.get());
@@ -66,17 +68,25 @@ public class RolesService {
     @Transactional
     public void addPermission(Long roleId, Long permissionId) {
         Optional<Roles> roles = repo.getRolesById(roleId);
-        Permission permission = permissionRepo.getById(permissionId);
-        roles.get().getPermissionList().add(permission);
-        repo.save(roles.get());
+        if (roles.isPresent()) {
+            Optional<Permission> permission = permissionRepo.getPermissionById(permissionId);
+            if (permission.isPresent()) {
+                roles.get().getPermissionList().add(permission.get());
+                repo.save(roles.get());
+            }
+        }
     }
 
     @Transactional
     public void removePermission(Long roleId, Long permissionId) {
         Optional<Roles> roles = repo.getRolesById(roleId);
-        Permission permission = permissionRepo.getById(permissionId);
-        roles.get().removePermission(permission);
-        repo.save(roles.get());
+        if (roles.isPresent()) {
+            Optional<Permission> permission = permissionRepo.getPermissionById(permissionId);
+            if (permission.isPresent()) {
+                roles.get().removePermission(permission.get());
+                repo.save(roles.get());
+            }
+        }
     }
 
     public Roles getById(Long aLong) {
@@ -85,9 +95,13 @@ public class RolesService {
 
     @Transactional
     public void addRole(Long id, Long roleId) {
-        Account account = accountRepo.getById(id);
-        Roles roles = getById(roleId);
-        account.setRole(roles);
-        accountRepo.save(account);
+        Optional<Roles> roles = repo.getRolesById(roleId);
+        if (roles.isPresent()) {
+            Optional<Account> account = accountRepo.getAccountById(id);
+            if (account.isPresent()) {
+                account.get().setRoleId(roleId);
+                accountRepo.save(account.get());
+            }
+        }
     }
 }

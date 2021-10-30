@@ -1,9 +1,7 @@
 package com.vnk.authserver.RestController;
 
 import com.vnk.authserver.Auth.AuthenticationRequest;
-import com.vnk.authserver.Auth.AuthenticationResponse;
 import com.vnk.authserver.Dto.AccountDto;
-import com.vnk.authserver.Entity.Account;
 import com.vnk.authserver.Service.AccountService;
 import com.vnk.authserver.Service.RolesService;
 import com.vnk.authserver.Util.JwtUtil;
@@ -35,18 +33,17 @@ public class AccountController {
         return accountService.login(authenticationRequest);
     }
 
-
-    @DeleteMapping("/{id}")
-    public void banAccount(@PathVariable long id) throws NotFoundException {
-        accountService.banAccount(id);
+    @DeleteMapping("")
+    public ResponseEntity<?> banAccount(@RequestParam long id) throws NotFoundException {
+        return accountService.banAccount(id);
     }
 
-    @PatchMapping("/{id}")
-    public void activeAccount(@PathVariable long id) throws NotFoundException {
-        accountService.activeAccount(id);
+    @PatchMapping("")
+    public ResponseEntity<?> activeAccount(@RequestParam long id) throws NotFoundException {
+        return accountService.activeAccount(id);
     }
 
-    @PutMapping("/addRoles")
+    @PutMapping("/add-roles")
     public void addRole(@RequestParam long id, @RequestParam long roleId){
         rolesService.addRole(id, roleId);
     }

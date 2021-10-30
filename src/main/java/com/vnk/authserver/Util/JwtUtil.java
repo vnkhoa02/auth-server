@@ -22,6 +22,14 @@ public class JwtUtil {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractRoles(String token) {
+        return (String) extractClaim(token, claims -> claims.get("role"));
+    }
+
+    public String extractPermission(String token) {
+        return (String) extractClaim(token, claims -> claims.get("permission"));
+    }
+
     public Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
     }
@@ -38,11 +46,6 @@ public class JwtUtil {
     public Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
-//    public String generateToken(Account account) {
-//        Map<String, Object> claims = new HashMap<>();
-//        return generateToken(claims, account.getUsername());
-//    }
 
     public String generateCustomToken(Object obj) {
         Map<String, Object> claims = new HashMap<>();

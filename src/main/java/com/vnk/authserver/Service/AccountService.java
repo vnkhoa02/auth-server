@@ -1,4 +1,5 @@
 package com.vnk.authserver.Service;
+
 import com.vnk.authserver.Auth.AuthenticationRequest;
 import com.vnk.authserver.Auth.AuthenticationResponse;
 import com.vnk.authserver.Dto.AccountDto;
@@ -8,7 +9,6 @@ import com.vnk.authserver.Repository.RolesRepository;
 import com.vnk.authserver.Util.JwtUtil;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,15 +32,15 @@ public class AccountService {
     @Transactional
     public ResponseEntity<?> create(AccountDto accountDto){
         if(accountDto.getPassword() == null || accountDto.getUsername() == null){
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Username and Password invalid", HttpStatus.BAD_REQUEST);
         }
         if(accountRepo.getByUsername(accountDto.getUsername()) != null){
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity("Account existed!", HttpStatus.BAD_REQUEST);
         }else {
             Account account = new Account();
             account.setUsername(accountDto.getUsername());
             account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
-//            account.setRole(rolesRepo.getByName("User").get());
+            account.setRoleId(rolesRepo.getByName("User").get().getId());
             account.setStatus(1);
             accountRepo.save(account);
             return new ResponseEntity(HttpStatus.OK);
@@ -57,25 +57,27 @@ public class AccountService {
     }
 
     @Transactional
-    public void banAccount(long id) throws NotFoundException {
+    public ResponseEntity<?> banAccount(long id) throws NotFoundException {
         if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(0);
             accountRepo.save(account);
         } else {
-            throw new NotFoundException("account not exists!");
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+        return null;
     }
 
     @Transactional
-    public void activeAccount(long id) throws NotFoundException {
+    public ResponseEntity<?> activeAccount(long id) throws NotFoundException {
         if(accountRepo.existsById(id)){
             Account account = accountRepo.getById(id);
             account.setStatus(1);
             accountRepo.save(account);
         }else {
-            throw new NotFoundException("account not exists!");
+            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
+        return null;
     }
 
     public Account getByUsername(String username) {

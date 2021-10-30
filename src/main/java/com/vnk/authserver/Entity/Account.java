@@ -1,5 +1,6 @@
 package com.vnk.authserver.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,9 +25,8 @@ public class Account {
     @NotNull
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    private Roles role;
+    @Column(name = "role_id")
+    private Long roleId;
 
     @Column(name = "status")
     @Min(0)
@@ -39,6 +39,7 @@ public class Account {
         return "Account{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
+                ", roles='" + getRoleId() + '\'' +
                 ", status=" + status +
                 '}';
     }
