@@ -3,44 +3,50 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Auth.AuthenticationRequest;
 import com.vnk.authserver.Dto.AccountDto;
 import com.vnk.authserver.Service.AccountService;
-import com.vnk.authserver.Service.RolesService;
-import javassist.NotFoundException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/accounts")
+@Api(tags = {"Authentication & Authorization Services"})
 public class AccountController {
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private RolesService rolesService;
+    @ApiOperation(value = "Get current user's info")
+    @GetMapping("/info")
+    public String getInfo(HttpServletRequest request) {
+        final String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null) {
+            return accountService.getInfo(authorizationHeader);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "404");
+    }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AccountDto accountDto){
-        return accountService.create(accountDto);
+    public void register(@Valid @RequestBody AccountDto accountDto) {
+        accountService.create(accountDto);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    public String login(@Valid @RequestBody AuthenticationRequest authenticationRequest) throws Exception {
         return accountService.login(authenticationRequest);
     }
 
     @DeleteMapping("")
-    public ResponseEntity<?> banAccount(@RequestParam long id) throws NotFoundException {
-        return accountService.banAccount(id);
+    public void banAccount(@RequestParam long id) {
+        accountService.banAccount(id);
     }
 
     @PatchMapping("")
-    public ResponseEntity<?> activeAccount(@RequestParam long id) throws NotFoundException {
-        return accountService.activeAccount(id);
+    public void activeAccount(@RequestParam long id) {
+        accountService.activeAccount(id);
     }
-
-    @PutMapping("/add-roles")
-    public void addRole(@RequestParam long id, @RequestParam long roleId){
-        rolesService.addRole(id, roleId);
-    }
-
 }

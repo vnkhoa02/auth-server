@@ -26,6 +26,10 @@ public class JwtUtil {
         return (String) extractClaim(token, claims -> claims.get("role"));
     }
 
+    public String extractInfo(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
     public String extractPermission(String token) {
         return (String) extractClaim(token, claims -> claims.get("permission"));
     }

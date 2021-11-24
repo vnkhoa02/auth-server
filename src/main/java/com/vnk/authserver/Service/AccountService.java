@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class AccountService {
@@ -30,54 +31,57 @@ public class AccountService {
     BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public ResponseEntity<?> create(AccountDto accountDto){
-        if(accountDto.getPassword() == null || accountDto.getUsername() == null){
-            return new ResponseEntity("Username and Password invalid", HttpStatus.BAD_REQUEST);
+    public void create(AccountDto accountDto) {
+        if (accountDto.getPassword() == null || accountDto.getUsername() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username & Password invalid!");
         }
-        if(accountRepo.getByUsername(accountDto.getUsername()) != null){
-            return new ResponseEntity("Account existed!", HttpStatus.BAD_REQUEST);
-        }else {
+        if (accountRepo.getByUsername(accountDto.getUsername()) != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account existed!");
+        } else {
             Account account = new Account();
             account.setUsername(accountDto.getUsername());
             account.setPassword(passwordEncoder.encode(accountDto.getPassword()));
             account.setRoleId(rolesRepo.getByName("User").get().getId());
             account.setStatus(1);
             accountRepo.save(account);
-            return new ResponseEntity(HttpStatus.OK);
         }
     }
 
-    public ResponseEntity<?> login(AuthenticationRequest request) {
+    public String login(AuthenticationRequest request) {
         Account account = accountRepo.getByUsername(request.getUsername());
         if (account != null && passwordEncoder.matches(request.getPassword(), account.getPassword())) {
             final String accessToken = jwtUtil.generateCustomToken(account);
-            return ResponseEntity.ok(new AuthenticationResponse(accessToken).getAccessToken());
+            return new AuthenticationResponse(accessToken).getAccessToken();
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
+    public String getInfo(String token) {
+        return jwtUtil.extractInfo(token);
     }
 
     @Transactional
-    public ResponseEntity<?> banAccount(long id) throws NotFoundException {
+    public void banAccount(long id) {
         if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(0);
             accountRepo.save(account);
         } else {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
-    public ResponseEntity<?> activeAccount(long id) throws NotFoundException {
-        if(accountRepo.existsById(id)){
+    public void activeAccount(long id) {
+        if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(1);
             accountRepo.save(account);
-        }else {
-            return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return null;
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     public Account getByUsername(String username) {

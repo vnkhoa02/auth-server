@@ -4,7 +4,6 @@ import com.vnk.authserver.Entity.Account;
 import com.vnk.authserver.Service.AccountService;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -35,8 +34,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
+        if (authorizationHeader != null) {
+            jwt = authorizationHeader;
             username = jwtUtil.extractUsername(jwt);
         }
 

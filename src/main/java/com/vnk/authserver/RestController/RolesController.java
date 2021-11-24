@@ -3,6 +3,8 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Dto.RolesDto;
 import com.vnk.authserver.Entity.Roles;
 import com.vnk.authserver.Service.RolesService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/roles")
+@Api(tags = {"Roles Services"})
 public class RolesController {
 
     @Autowired
@@ -26,6 +29,7 @@ public class RolesController {
          return rolesService.create(rolesDto);
     }
 
+    @ApiOperation(value = "Add permission to role")
     @PutMapping("/add-permission")
     public void addPermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.addPermission(roleId, permissionId);
@@ -41,8 +45,15 @@ public class RolesController {
         rolesService.delete(rolesDto);
     }
 
+    @ApiOperation(value = "Remove permission from role")
     @DeleteMapping("/remove-permission")
     public void removePermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.removePermission(roleId, permissionId);
+    }
+
+    @ApiOperation(value = "Add role to account")
+    @PutMapping("/add-roles")
+    public void addRole(@RequestParam long accountId, @RequestParam long roleId){
+        rolesService.addRole(accountId, roleId);
     }
 }
