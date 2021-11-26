@@ -22,7 +22,7 @@ public class AccountController {
 
     @ApiOperation(value = "Get current user's info")
     @GetMapping("/info")
-    public String getInfo(HttpServletRequest request) {
+    public AccountDto getInfo(HttpServletRequest request) {
         final String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null) {
             return accountService.getInfo(authorizationHeader);
@@ -31,8 +31,8 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public void register(@Valid @RequestBody AccountDto accountDto) {
-        accountService.create(accountDto);
+    public void register(@Valid @RequestBody AuthenticationRequest auth) {
+        accountService.create(auth);
     }
 
     @PostMapping("/login")

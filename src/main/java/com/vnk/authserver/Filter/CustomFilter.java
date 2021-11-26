@@ -1,6 +1,6 @@
 package com.vnk.authserver.Filter;
 
-import com.vnk.authserver.Service.RolesService;
+import com.vnk.authserver.Util.Contraints;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
@@ -16,23 +16,22 @@ public class CustomFilter extends GenericFilterBean {
 
     JwtUtil jwtUtil;
 
-    RolesService rolesService;
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        if (jwtUtil == null || rolesService == null) {
-            // idk why it's working
+        if (jwtUtil == null) {
             ServletContext servletContext = request.getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             jwtUtil = webApplicationContext.getBean(JwtUtil.class);
-            rolesService = webApplicationContext.getBean(RolesService.class);
         }
-        String jwt = ((HttpServletRequest) request).getHeader("Authorization").substring(7);
-        String rolesId = jwtUtil.extractRoles(jwt);
-        String roles = rolesService.getById(Long.valueOf(rolesId)).getName();
-        if (roles.equals("Manager") || roles.equals("Admin")) {
-            filterChain.doFilter(request, response);
+        String jwt = ((HttpServletRequest) request).getHeader("Authorization");
+        String roleName = jwtUtil.extractRoles(jwt);
+
+        if (roleName != null) {
+            if (roleName.equals(Contraints.getContraint("Admin")) || roleName.equals(Contraints.getContraint("Manager"))) {
+                filterChain.doFilter(request, response);
+            }
         }
+
     }
 
 }

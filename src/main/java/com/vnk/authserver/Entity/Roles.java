@@ -21,7 +21,6 @@ public class Roles {
     @ManyToMany
     @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    @JsonIgnore
     private List<Permission> permissionList;
 
     @Column(name = "status")

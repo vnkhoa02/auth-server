@@ -32,14 +32,4 @@ public class Account {
     @Max(1)
     @NotNull
     private Integer status;
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", roles='" + getRoleId() + '\'' +
-                ", status=" + status +
-                '}';
-    }
 }

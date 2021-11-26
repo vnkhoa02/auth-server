@@ -21,7 +21,7 @@ import java.util.Optional;
 public class RolesService {
 
     @Autowired
-    RolesRepository repo;
+    public RolesRepository repo;
 
     @Autowired
     PermissionRepository permissionRepo;
@@ -89,8 +89,8 @@ public class RolesService {
         }
     }
 
-    public Roles getById(Long aLong) {
-        return repo.getRolesById(aLong).get();
+    public Optional<Roles> getById(Long aLong) {
+        return repo.getRolesById(aLong);
     }
 
     @Transactional
