@@ -10,6 +10,7 @@ import com.vnk.authserver.Repository.AccountRepository;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +48,7 @@ public class AccountService {
             Account account = new Account();
             account.setUsername(auth.getUsername());
             account.setPassword(passwordEncoder.encode(auth.getPassword()));
-            account.setRoleId(rolesService.repo.getByName("User").get().getId());
+            account.setRoleId(1L);
             account.setStatus(1);
             accountRepo.save(account);
         }
@@ -70,9 +71,9 @@ public class AccountService {
             }
 
             final String accessToken = jwtUtil.generateCustomToken(accountDto);
-            return new AuthenticationResponse(accessToken).getAccessToken();
+            return new AuthenticationResponse(accessToken).getAccessToken() ;
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Username & Password!");
     }
 
     public AccountDto getInfo(String token) {

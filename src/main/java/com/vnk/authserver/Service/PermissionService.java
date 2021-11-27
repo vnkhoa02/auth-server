@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class PermissionService {
         }else {
             return new ResponseEntity(String.format("Permission %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
         }
-        return null;
+        return new ResponseEntity("Unknown!", HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
@@ -42,6 +43,8 @@ public class PermissionService {
         if (permission.isPresent()) {
             permission.get().setName(permissionDto.getName());
             repo.save(permission.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -51,6 +54,8 @@ public class PermissionService {
         if (permission.isPresent()) {
             permission.get().setStatus(0);
             repo.save(permission.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 

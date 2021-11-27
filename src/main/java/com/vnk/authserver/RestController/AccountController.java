@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,7 +28,7 @@ public class AccountController {
         if (authorizationHeader != null) {
             return accountService.getInfo(authorizationHeader);
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "404");
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "401");
     }
 
     @PostMapping("/register")
@@ -40,12 +41,12 @@ public class AccountController {
         return accountService.login(authenticationRequest);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping("/ban")
     public void banAccount(@RequestParam long id) {
         accountService.banAccount(id);
     }
 
-    @PatchMapping("")
+    @PatchMapping("/active")
     public void activeAccount(@RequestParam long id) {
         accountService.activeAccount(id);
     }

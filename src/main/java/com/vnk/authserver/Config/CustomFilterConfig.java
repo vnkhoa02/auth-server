@@ -13,7 +13,7 @@ public class CustomFilterConfig{
         FilterRegistrationBean<CustomFilter> registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(new CustomFilter());
-        registrationBean.addUrlPatterns("/permission/*", "/roles/*");
+        registrationBean.addUrlPatterns("/permission/*", "/roles/*", "/accounts/ban", "/accounts/active");
         return registrationBean;
     }
 }

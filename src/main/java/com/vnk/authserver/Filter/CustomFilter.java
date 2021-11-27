@@ -9,6 +9,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Component
@@ -29,9 +30,9 @@ public class CustomFilter extends GenericFilterBean {
         if (roleName != null) {
             if (roleName.equals(Contraints.getContraint("Admin")) || roleName.equals(Contraints.getContraint("Manager"))) {
                 filterChain.doFilter(request, response);
+            }else {
+                ((HttpServletResponse) response).sendError(401, "Unauthorized");
             }
         }
-
     }
-
 }

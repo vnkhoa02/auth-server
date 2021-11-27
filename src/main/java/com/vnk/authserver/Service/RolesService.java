@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class RolesService {
         } else {
             return new ResponseEntity(String.format("Role %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
         }
-        return null;
+        return new ResponseEntity("Unknown!", HttpStatus.BAD_REQUEST);
     }
 
     public List<Roles> findAll() {
@@ -53,6 +54,8 @@ public class RolesService {
         if (roles.isPresent()) {
             roles.get().setName(rolesDto.getName());
             repo.save(roles.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -62,6 +65,8 @@ public class RolesService {
         if (roles.isPresent()) {
             roles.get().setStatus(0);
             repo.save(roles.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -73,7 +78,11 @@ public class RolesService {
             if (permission.isPresent()) {
                 roles.get().getPermissionList().add(permission.get());
                 repo.save(roles.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -85,7 +94,12 @@ public class RolesService {
             if (permission.isPresent()) {
                 roles.get().removePermission(permission.get());
                 repo.save(roles.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
             }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
@@ -101,7 +115,11 @@ public class RolesService {
             if (account.isPresent()) {
                 account.get().setRoleId(roleId);
                 accountRepo.save(account.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }
