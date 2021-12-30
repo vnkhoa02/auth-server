@@ -3,6 +3,7 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Dto.RolesDto;
 import com.vnk.authserver.Entity.Roles;
 import com.vnk.authserver.Service.RolesService;
+import com.vnk.authserver.Util.Constants;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping(Constants.BASE_URL + "/roles")
 @Api(tags = {"Roles Services"})
 public class RolesController {
 

@@ -3,6 +3,7 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Dto.PermissionDto;
 import com.vnk.authserver.Entity.Permission;
 import com.vnk.authserver.Service.PermissionService;
+import com.vnk.authserver.Util.Constants;
 import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/permission")
+@RequestMapping(Constants.BASE_URL + "/permission")
 @Api(tags = {"Permission Services"})
 public class PermissionController {
 

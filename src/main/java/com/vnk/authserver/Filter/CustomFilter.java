@@ -1,6 +1,6 @@
 package com.vnk.authserver.Filter;
 
-import com.vnk.authserver.Util.Contraints;
+import com.vnk.authserver.Util.Constants;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
@@ -28,7 +28,7 @@ public class CustomFilter extends GenericFilterBean {
         String roleName = jwtUtil.extractRoles(jwt);
 
         if (roleName != null) {
-            if (roleName.equals(Contraints.getContraint("Admin")) || roleName.equals(Contraints.getContraint("Manager"))) {
+            if (roleName.equals(Constants.getConstant("Admin")) || roleName.equals(Constants.getConstant("Manager"))) {
                 filterChain.doFilter(request, response);
             }else {
                 ((HttpServletResponse) response).sendError(401, "Unauthorized");

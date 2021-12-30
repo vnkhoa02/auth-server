@@ -26,7 +26,8 @@ public class AuthServerApplication {
                 .securityContexts(Arrays.asList(securityContext()))
                 .securitySchemes(Arrays.asList(apiKey()))
                 .select()
-                .apis(RequestHandlerSelectors.any())
+                .apis(RequestHandlerSelectors.basePackage("com.vnk.authserver.RestController"))
+                .paths(PathSelectors.any())
                 .build();
     }
 

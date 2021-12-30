@@ -23,11 +23,11 @@ public class JwtUtil {
     private final Integer EXPIRED_TIME = 1000 * 60 * 60 * 10;
 
     public String extractUsername(String token) {
-        return (String) extractClaim(token, claims -> claims.get(Contraints.getContraint("username")));
+        return (String) extractClaim(token, claims -> claims.get(Constants.getConstant("username")));
     }
 
     public String extractRoles(String token) {
-        return (String) extractClaim(token, claims -> claims.get(Contraints.getContraint("roles")));
+        return (String) extractClaim(token, claims -> claims.get(Constants.getConstant("roles")));
     }
 
     public AccountDto extractInfo(String token) {
@@ -40,7 +40,7 @@ public class JwtUtil {
     }
 
     public List<String> extractPermission(String token) {
-        return (List<String>) extractClaim(token, claims -> claims.get(Contraints.getContraint("permissions")));
+        return (List<String>) extractClaim(token, claims -> claims.get(Constants.getConstant("permissions")));
     }
 
     public Date extractExpiration(String token) {
@@ -62,9 +62,9 @@ public class JwtUtil {
 
     public String generateCustomToken(AccountDto obj) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put(Contraints.getContraint("username"), obj.getUsername());
-        claims.put(Contraints.getContraint("roles"), obj.getRole());
-        claims.put(Contraints.getContraint("permissions"), obj.getPermissions());
+        claims.put(Constants.getConstant("username"), obj.getUsername());
+        claims.put(Constants.getConstant("roles"), obj.getRole());
+        claims.put(Constants.getConstant("permissions"), obj.getPermissions());
         return generateToken(claims, String.valueOf(obj.getId()));
     }
 
