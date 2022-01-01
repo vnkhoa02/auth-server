@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 
 @RestController
-@Api(tags = {"Authentication & Authorization Services"})
+@Api(tags = {"Authentication Services"})
 @RequestMapping(Constants.BASE_URL)
 public class AuthController {
 

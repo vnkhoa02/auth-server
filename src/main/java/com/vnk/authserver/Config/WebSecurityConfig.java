@@ -20,7 +20,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/**", Constants.BASE_URL + "sms/**","/register", "/login")
+                .antMatchers("/v2/api-docs", // for swagger
+                        "/swagger-ui.html/**",
+                        "/swagger-resources/**",
+                        "/configuration/ui",
+                        "/webjars/**",
+                        Constants.BASE_URL + "sms/*",
+                        Constants.BASE_URL + "register",
+                        Constants.BASE_URL + "login")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

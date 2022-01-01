@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class Constants {
-    public static final String BASE_URL = "api/v1/";
+    public static final String BASE_URL = "/api/v1/";
     private static final Map<String, String> AUTH = new HashMap<>();
     public static String getConstant(String key){
         // roles
