@@ -1,5 +1,8 @@
 package com.vnk.authserver.Service;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.vnk.authserver.Auth.AuthenticationRequest;
 import com.vnk.authserver.Auth.AuthenticationResponse;
 import com.vnk.authserver.Dto.AccountDto;
@@ -10,17 +13,19 @@ import com.vnk.authserver.Repository.AccountRepository;
 import com.vnk.authserver.Util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class AccountService {
@@ -37,7 +42,24 @@ public class AccountService {
     JwtUtil jwtUtil;
 
     @Autowired
+    private HttpServletRequest httpServletRequest;
+
+    @Autowired
     BCryptPasswordEncoder passwordEncoder;
+
+    private int LOGIN_FAIL_MAX = 4;
+
+    private LoadingCache<String, Integer> requestCountsPerIpAddress;
+
+    public AccountService() {
+        super();
+        requestCountsPerIpAddress = CacheBuilder.newBuilder().
+                expireAfterWrite(300, TimeUnit.SECONDS).build(new CacheLoader<String, Integer>() {
+            public Integer load(String key) {
+                return 0;
+            }
+        });
+    }
 
     @Transactional
     public void create(AuthenticationRequest auth) {
@@ -72,11 +94,37 @@ public class AccountService {
                 }
                 accountDto.setPermissions(list);
             }
-
             final String accessToken = jwtUtil.generateCustomToken(accountDto);
-            return new AuthenticationResponse(accessToken).getAccessToken() ;
+            return new AuthenticationResponse(accessToken).getAccessToken();
+        }
+        if (maxFailPerMin(getClientIP(httpServletRequest))) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS);
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong Username & Password!");
+    }
+
+    private boolean maxFailPerMin(String clientIpAddress) {
+        int requests = 0;
+        try {
+            requests = requestCountsPerIpAddress.get(clientIpAddress);
+            if (requests >= LOGIN_FAIL_MAX) {
+                requestCountsPerIpAddress.put(clientIpAddress, requests);
+                return true;
+            }
+        } catch (ExecutionException e) {
+            requests = 0;
+        }
+        requests++;
+        requestCountsPerIpAddress.put(clientIpAddress, requests);
+        return false;
+    }
+
+    private String getClientIP(HttpServletRequest request) {
+        String xfHeader = request.getHeader("X-Forwarded-For");
+        if (xfHeader == null) {
+            return request.getRemoteAddr();
+        }
+        return xfHeader.split(",")[0];
     }
 
     public AccountDto getInfo(String token) {
@@ -84,7 +132,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void banAccount(String  id) {
+    public void banAccount(String id) {
         if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(0);
