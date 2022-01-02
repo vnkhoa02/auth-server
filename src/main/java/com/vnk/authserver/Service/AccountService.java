@@ -16,9 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AccountService {
@@ -46,6 +48,7 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account existed!");
         } else {
             Account account = new Account();
+            account.setId(UUID.nameUUIDFromBytes(auth.getUsername().getBytes(StandardCharsets.UTF_8)).toString());
             account.setUsername(auth.getUsername());
             account.setPassword(passwordEncoder.encode(auth.getPassword()));
             account.setRoleId(1L);
@@ -81,7 +84,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void banAccount(long id) {
+    public void banAccount(String  id) {
         if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(0);
@@ -93,7 +96,7 @@ public class AccountService {
     }
 
     @Transactional
-    public void activeAccount(long id) {
+    public void activeAccount(String id) {
         if (accountRepo.existsById(id)) {
             Account account = accountRepo.getById(id);
             account.setStatus(1);

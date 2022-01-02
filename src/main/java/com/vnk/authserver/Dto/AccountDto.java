@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountDto {
-    private Long id;
+    private String id;
     private String username;
     private String role;
     private List<String> permissions;

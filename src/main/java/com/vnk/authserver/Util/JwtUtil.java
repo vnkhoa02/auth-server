@@ -32,7 +32,7 @@ public class JwtUtil {
 
     public AccountDto extractInfo(String token) {
         AccountDto accountDto = new AccountDto();
-        accountDto.setId(Long.valueOf(extractClaim(token, Claims::getSubject)));
+        accountDto.setId(extractClaim(token, Claims::getSubject));
         accountDto.setUsername(extractUsername(token));
         accountDto.setRole(extractRoles(token));
         accountDto.setPermissions(extractPermission(token));

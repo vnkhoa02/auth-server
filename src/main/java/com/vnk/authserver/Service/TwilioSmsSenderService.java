@@ -14,16 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service("twilio")
-public class TwilioSmsSender implements SmsSender {
+public class TwilioSmsSenderService implements SmsSender {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TwilioSmsSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TwilioSmsSenderService.class);
 
     private final TwilioConfiguration twilioConfiguration;
 
     com.twilio.rest.verify.v2.Service smsService = com.twilio.rest.verify.v2.Service.creator("catcat").create();
 
     @Autowired
-    public TwilioSmsSender(TwilioConfiguration twilioConfiguration) {
+    public TwilioSmsSenderService(TwilioConfiguration twilioConfiguration) {
         this.twilioConfiguration = twilioConfiguration;
     }
 

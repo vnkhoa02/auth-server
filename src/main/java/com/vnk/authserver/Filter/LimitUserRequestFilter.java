@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public final class LimitUserRequestFilter implements Filter {
 
-    private int MAX_REQUESTS_PER_SECOND = 10; //or whatever you want it to be
+    private int MAX_REQUESTS_PER_SECOND = 20; //or whatever you want it to be
 
     private LoadingCache<String, Integer> requestCountsPerIpAddress;
 

@@ -30,12 +30,12 @@ public class AccountController {
     }
 
     @DeleteMapping("/ban")
-    public void banAccount(@RequestParam long id) {
+    public void banAccount(@RequestParam String id) {
         accountService.banAccount(id);
     }
 
     @PatchMapping("/active")
-    public void activeAccount(@RequestParam long id) {
+    public void activeAccount(@RequestParam String id) {
         accountService.activeAccount(id);
     }
 }
