@@ -70,7 +70,7 @@ public class AccountService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account existed!");
         } else {
             Account account = new Account();
-            account.setId(UUID.nameUUIDFromBytes(auth.getUsername().getBytes(StandardCharsets.UTF_8)).toString());
+            account.setUuid(UUID.nameUUIDFromBytes(auth.getUsername().getBytes(StandardCharsets.UTF_8)).toString());
             account.setUsername(auth.getUsername());
             account.setPassword(passwordEncoder.encode(auth.getPassword()));
             account.setRoleId(1L);

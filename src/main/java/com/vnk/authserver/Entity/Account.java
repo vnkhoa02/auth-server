@@ -3,21 +3,23 @@ package com.vnk.authserver.Entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 @Data
-public class Account {
+public class Account extends BaseEntity{
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
 
-    @Column(name = "username", unique = true, nullable = false, length = 50)
+    @Column(name = "username", unique = true, nullable = false)
     @NotNull
     private String username;
+
+    @Column(name = "uuid")
+    private String uuid;
 
     @Column(name = "password", nullable = false)
     @NotNull
@@ -26,9 +28,4 @@ public class Account {
     @Column(name = "role_id")
     private Long roleId;
 
-    @Column(name = "status")
-    @Min(0)
-    @Max(1)
-    @NotNull
-    private Integer status;
 }
