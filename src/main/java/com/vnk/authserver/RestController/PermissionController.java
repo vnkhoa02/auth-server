@@ -3,35 +3,39 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Dto.PermissionDto;
 import com.vnk.authserver.Entity.Permission;
 import com.vnk.authserver.Service.PermissionService;
+import com.vnk.authserver.Util.Constants;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/permission")
+@RequestMapping(Constants.BASE_URL + "/permission")
+@Api(tags = {"Permission Services"})
 public class PermissionController {
 
     @Autowired
     private PermissionService permissionService;
 
     @GetMapping("")
-    public List<Permission> findAll(){
+    public List<Permission> findAll() {
         return permissionService.findAll();
     }
 
     @PostMapping("")
-    public Permission create(@RequestBody PermissionDto permissionDto){
+    public ResponseEntity<?> create(@RequestBody PermissionDto permissionDto) {
         return permissionService.create(permissionDto);
     }
 
-    @PutMapping("/{id}")
-    public Permission update(@PathVariable long id, @RequestBody PermissionDto permissionDto){
-        return permissionService.update(id, permissionDto);
+    @PutMapping("")
+    public void update(@RequestBody PermissionDto permissionDto) {
+        permissionService.update(permissionDto);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id){
-        permissionService.delete(id);
+    @DeleteMapping("")
+    public void delete(@RequestBody PermissionDto permissionDto) {
+        permissionService.delete(permissionDto);
     }
 }

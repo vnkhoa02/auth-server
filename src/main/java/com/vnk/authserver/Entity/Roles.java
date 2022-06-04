@@ -18,14 +18,9 @@ public class Roles {
     @Column(name = "name",nullable = false, unique = true)
     private String name;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    @JsonIgnore
-    private List<Account> accountList;
-
     @ManyToMany
     @JoinTable(name = "role_permission", joinColumns = @JoinColumn(name = "role_id"),
             inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    @JsonIgnore
     private List<Permission> permissionList;
 
     @Column(name = "status")

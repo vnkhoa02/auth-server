@@ -9,16 +9,20 @@ import com.vnk.authserver.Repository.AccountRepository;
 import com.vnk.authserver.Repository.PermissionRepository;
 import com.vnk.authserver.Repository.RolesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RolesService {
 
     @Autowired
-    RolesRepository repo;
+    public RolesRepository repo;
 
     @Autowired
     PermissionRepository permissionRepo;
@@ -27,17 +31,17 @@ public class RolesService {
     AccountRepository accountRepo;
 
     @Transactional
-    public Roles create(RolesDto rolesDto){
-        Roles roles = new Roles();
-        roles.setName(rolesDto.getName());
-        if(accountRepo.existsById(rolesDto.getAccount_id())){
-            roles.getAccountList().add(accountRepo.getById(rolesDto.getAccount_id()));
+    public ResponseEntity<?> create(RolesDto rolesDto) {
+        Optional<Roles> checkExists = repo.getByName(rolesDto.getName());
+        if (!checkExists.isPresent()) {
+            Roles roles = new Roles();
+            roles.setName(rolesDto.getName());
+            roles.setStatus(1);
+            repo.save(roles);
+        } else {
+            return new ResponseEntity(String.format("Role %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
         }
-        if (permissionRepo.existsById(rolesDto.getPermission_id())){
-            roles.getPermissionList().add(permissionRepo.getById(rolesDto.getPermission_id()));
-        }
-        roles.setStatus(1);
-        return repo.save(roles);
+        return new ResponseEntity("Unknown!", HttpStatus.BAD_REQUEST);
     }
 
     public List<Roles> findAll() {
@@ -45,46 +49,77 @@ public class RolesService {
     }
 
     @Transactional
-    public Roles update(long id, RolesDto rolesDto){
-        Roles roles = repo.getById(id);
-        if(rolesDto.getName() != null){
-            roles.setName(rolesDto.getName());
+    public void update(RolesDto rolesDto) {
+        Optional<Roles> roles = repo.getRolesById(rolesDto.getId());
+        if (roles.isPresent()) {
+            roles.get().setName(rolesDto.getName());
+            repo.save(roles.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return repo.save(roles);
     }
 
     @Transactional
-    public void delete(long id){
-        Roles roles = repo.getById(id);
-        roles.setStatus(0);
-        repo.save(roles);
+    public void delete(RolesDto rolesDto) {
+        Optional<Roles> roles = repo.getRolesById(rolesDto.getId());
+        if (roles.isPresent()) {
+            roles.get().setStatus(0);
+            repo.save(roles.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Transactional
-    public void addPermission(long roleId, long permissionId){
-        Roles roles = repo.getById(roleId);
-        Permission permission = permissionRepo.getById(permissionId);
-        roles.getPermissionList().add(permission);
-        repo.save(roles);
+    public void addPermission(Long roleId, Long permissionId) {
+        Optional<Roles> roles = repo.getRolesById(roleId);
+        if (roles.isPresent()) {
+            Optional<Permission> permission = permissionRepo.getPermissionById(permissionId);
+            if (permission.isPresent()) {
+                roles.get().getPermissionList().add(permission.get());
+                repo.save(roles.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @Transactional
-    public void removePermission(long roleId, long permissionId){
-        Roles roles = repo.getById(roleId);
-        Permission permission = permissionRepo.getById(permissionId);
-        roles.removePermission(permission);
-        repo.save(roles);
+    public void removePermission(Long roleId, Long permissionId) {
+        Optional<Roles> roles = repo.getRolesById(roleId);
+        if (roles.isPresent()) {
+            Optional<Permission> permission = permissionRepo.getPermissionById(permissionId);
+            if (permission.isPresent()) {
+                roles.get().removePermission(permission.get());
+                repo.save(roles.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
-    public Roles getById(Long aLong) {
-        return repo.getById(aLong);
+    public Optional<Roles> getById(Long aLong) {
+        return repo.getRolesById(aLong);
     }
 
     @Transactional
-    public void addRole(long id, long roleId){
-        Account account = accountRepo.getById(id);
-        Roles roles = getById(roleId);
-        account.setRole(roles);
-        accountRepo.save(account);
+    public void addRole(Long id, Long roleId) {
+        Optional<Roles> roles = repo.getRolesById(roleId);
+        if (roles.isPresent()) {
+            Optional<Account> account = accountRepo.getAccountById(id);
+            if (account.isPresent()) {
+                account.get().setRoleId(roleId);
+                accountRepo.save(account.get());
+            }else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 }

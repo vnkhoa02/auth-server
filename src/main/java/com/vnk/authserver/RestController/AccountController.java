@@ -1,68 +1,41 @@
 package com.vnk.authserver.RestController;
 
-import com.vnk.authserver.Auth.AuthenticationRequest;
-import com.vnk.authserver.Auth.AuthenticationResponse;
 import com.vnk.authserver.Dto.AccountDto;
-import com.vnk.authserver.Entity.Account;
 import com.vnk.authserver.Service.AccountService;
-import com.vnk.authserver.Service.RolesService;
-import com.vnk.authserver.Util.JwtUtil;
-import javassist.NotFoundException;
+import com.vnk.authserver.Util.Constants;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/accounts")
+@RequestMapping(Constants.BASE_URL + "accounts")
+@Api(tags = {"Accounts Service"})
 public class AccountController {
-
-    @Autowired
-    private JwtUtil jwtUtil;
-
     @Autowired
     private AccountService accountService;
 
-    @Autowired
-    private RolesService rolesService;
-
-    @GetMapping("/test")
-    public String hello(){
-        return "hi";
-    }
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AccountDto accountDto){
-        return accountService.create(accountDto);
-    }
-
-    @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-
-        if(accountService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword())){
-            final Account account = accountService.getByUsername(authenticationRequest.getUsername());
-
-            final String accessToken = jwtUtil.generateCustomToken(account);
-
-            return ResponseEntity.ok(new AuthenticationResponse(accessToken).getAccessToken());
+    @ApiOperation(value = "Get current user's info")
+    @GetMapping("/info")
+    public AccountDto getInfo(HttpServletRequest request) {
+        final String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null) {
+            return accountService.getInfo(authorizationHeader);
         }
-        return new ResponseEntity(HttpStatus.FORBIDDEN);
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "401");
     }
 
-
-    @DeleteMapping("/{id}")
-    public void banAccount(@PathVariable long id) throws NotFoundException {
+    @DeleteMapping("/ban")
+    public void banAccount(@RequestParam String id) {
         accountService.banAccount(id);
     }
 
-    @PatchMapping("/{id}")
-    public void activeAccount(@PathVariable long id) throws NotFoundException {
+    @PatchMapping("/active")
+    public void activeAccount(@RequestParam String id) {
         accountService.activeAccount(id);
     }
-
-    @PutMapping("/{id}/{roleId}")
-    public void addRole(@PathVariable long id, @PathVariable long roleId){
-        rolesService.addRole(id, roleId);
-    }
-
-
 }

@@ -3,43 +3,29 @@ package com.vnk.authserver.Entity;
 import lombok.Data;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "accounts")
+@Table(name = "account")
 @Data
-public class Account {
+public class Account extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
 
-    @Column(name = "username", unique = true, nullable = false, length = 50)
+    @Column(name = "username", unique = true, nullable = false)
     @NotNull
     private String username;
+
+    @Column(name = "uuid")
+    private String uuid;
 
     @Column(name = "password", nullable = false)
     @NotNull
     private String password;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "role_id")
-    private Roles role;
+    @Column(name = "role_id")
+    private Long roleId;
 
-    @Column(name = "status")
-    @Min(0)
-    @Max(1)
-    @NotNull
-    private Integer status;
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", status=" + status +
-                '}';
-    }
 }

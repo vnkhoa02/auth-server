@@ -1,0 +1,5 @@
+twilio:
+  account_sid: AC1aebcda75241274b87084e514a7188c5
+  auth_token: c8d5b6cbf4b4d4d68479febfe82e0c93
+  service_id: VA688c5d28dd46a9da900ed3605b378bde
+  trial_number: +12698046009

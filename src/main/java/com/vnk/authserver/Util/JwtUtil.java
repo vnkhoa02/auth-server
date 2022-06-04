@@ -1,5 +1,6 @@
 package com.vnk.authserver.Util;
 
+import com.vnk.authserver.Dto.AccountDto;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -18,8 +20,27 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET_KEY;
 
+    private final Integer EXPIRED_TIME = 1000 * 60 * 60 * 10;
+
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return (String) extractClaim(token, claims -> claims.get(Constants.getConstant("username")));
+    }
+
+    public String extractRoles(String token) {
+        return (String) extractClaim(token, claims -> claims.get(Constants.getConstant("roles")));
+    }
+
+    public AccountDto extractInfo(String token) {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setId(Integer.parseInt(extractClaim(token, Claims::getSubject)));
+        accountDto.setUsername(extractUsername(token));
+        accountDto.setRole(extractRoles(token));
+        accountDto.setPermissions(extractPermission(token));
+        return accountDto;
+    }
+
+    public List<String> extractPermission(String token) {
+        return (List<String>) extractClaim(token, claims -> claims.get(Constants.getConstant("permissions")));
     }
 
     public Date extractExpiration(String token) {
@@ -39,24 +60,24 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-//    public String generateToken(Account account) {
-//        Map<String, Object> claims = new HashMap<>();
-//        return generateToken(claims, account.getUsername());
-//    }
-
-    public String generateCustomToken(Object obj) {
+    public String generateCustomToken(AccountDto obj) {
         Map<String, Object> claims = new HashMap<>();
-        return generateToken(claims, obj.toString());
+        claims.put(Constants.getConstant("username"), obj.getUsername());
+        claims.put(Constants.getConstant("roles"), obj.getRole());
+        claims.put(Constants.getConstant("permissions"), obj.getPermissions());
+        return generateToken(claims, String.valueOf(obj.getId()));
     }
 
     private String generateToken(Map<String, Object> claims, String subject) {
 
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+        return Jwts.builder().setClaims(claims).
+                setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRED_TIME))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
     public Boolean validateToken(String token) {
-        return isTokenExpired(token);
+        return !isTokenExpired(token);
     }
 }

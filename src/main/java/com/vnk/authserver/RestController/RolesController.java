@@ -3,13 +3,18 @@ package com.vnk.authserver.RestController;
 import com.vnk.authserver.Dto.RolesDto;
 import com.vnk.authserver.Entity.Roles;
 import com.vnk.authserver.Service.RolesService;
+import com.vnk.authserver.Util.Constants;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/roles")
+@RequestMapping(Constants.BASE_URL + "/roles")
+@Api(tags = {"Roles Services"})
 public class RolesController {
 
     @Autowired
@@ -21,27 +26,35 @@ public class RolesController {
     }
 
     @PostMapping("")
-    public Roles create(@RequestBody RolesDto rolesDto) {
-        return rolesService.create(rolesDto);
+    public ResponseEntity<?> create(@RequestBody RolesDto rolesDto) {
+         return rolesService.create(rolesDto);
     }
 
-    @PutMapping("/{roleId}/{permissionId}")
-    public void addPermission(@PathVariable long roleId, @PathVariable long permissionId) {
+    @ApiOperation(value = "Add permission to role")
+    @PutMapping("/add-permission")
+    public void addPermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.addPermission(roleId, permissionId);
     }
 
-    @PutMapping("/{id}")
-    public Roles update(@PathVariable long id, @RequestBody RolesDto rolesDto) {
-        return rolesService.update(id, rolesDto);
+    @PutMapping("")
+    public void update(@RequestBody RolesDto rolesDto) {
+         rolesService.update(rolesDto);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable long id) {
-        rolesService.delete(id);
+    @DeleteMapping("")
+    public void delete(@RequestBody RolesDto rolesDto) {
+        rolesService.delete(rolesDto);
     }
 
-    @DeleteMapping("/{roleId}/{permissionId}")
-    public void removePermission(@PathVariable long roleId, @PathVariable long permissionId) {
+    @ApiOperation(value = "Remove permission from role")
+    @DeleteMapping("/remove-permission")
+    public void removePermission(@RequestParam long roleId, @RequestParam long permissionId) {
         rolesService.removePermission(roleId, permissionId);
+    }
+
+    @ApiOperation(value = "Add role to account")
+    @PutMapping("/add-roles")
+    public void addRole(@RequestParam long accountId, @RequestParam long roleId){
+        rolesService.addRole(accountId, roleId);
     }
 }

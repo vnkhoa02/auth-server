@@ -4,10 +4,14 @@ import com.vnk.authserver.Dto.PermissionDto;
 import com.vnk.authserver.Entity.Permission;
 import com.vnk.authserver.Repository.PermissionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PermissionService {
@@ -20,26 +24,39 @@ public class PermissionService {
     }
 
     @Transactional
-    public Permission create(PermissionDto permissionDto) {
-        Permission permission = new Permission();
-        permission.setName(permissionDto.getName());
-        permission.setStatus(0);
-        return repo.save(permission);
-    }
-
-    @Transactional
-    public Permission update(long id, PermissionDto permissionDto) {
-        Permission permission = repo.getById(id);
-        if (permissionDto.getName() != null) {
+    public ResponseEntity<?> create(PermissionDto permissionDto) {
+        Optional<Permission> checkExists = repo.getPermissionByName(permissionDto.getName());
+        if (!checkExists.isPresent()) {
+            Permission permission = new Permission();
             permission.setName(permissionDto.getName());
+            permission.setStatus(1);
+            repo.save(permission);
+        }else {
+            return new ResponseEntity(String.format("Permission %s existed!", checkExists.get().getName()), HttpStatus.BAD_REQUEST);
         }
-        return repo.save(permission);
+        return new ResponseEntity("Unknown!", HttpStatus.BAD_REQUEST);
     }
 
     @Transactional
-    public void delete(long id) {
-        Permission permission = repo.getById(id);
-        permission.setStatus(0);
+    public void update(PermissionDto permissionDto) {
+        Optional<Permission> permission = repo.getPermissionById(permissionDto.getId());
+        if (permission.isPresent()) {
+            permission.get().setName(permissionDto.getName());
+            repo.save(permission.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Transactional
+    public void delete(PermissionDto permissionDto) {
+        Optional<Permission> permission = repo.getPermissionById(permissionDto.getId());
+        if (permission.isPresent()) {
+            permission.get().setStatus(0);
+            repo.save(permission.get());
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
 
